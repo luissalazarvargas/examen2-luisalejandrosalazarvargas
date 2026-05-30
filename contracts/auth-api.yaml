@@ -1,0 +1,84 @@
+openapi: 3.0.0
+info:
+  title: Panini Auth API
+  description: Contrato de servicios de autenticación para la app móvil de soporte de Panini.
+  version: 1.0.0
+paths:
+  /api/auth/login:
+    post:
+      summary: Iniciar sesión en el sistema de soporte
+      description: Permite autenticar a un usuario/operador mediante credenciales.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Credenciales incorrectas o no autorizadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: operador.logistico@panini.com
+        password:
+          type: string
+          format: password
+          example: Segura123
+    LoginResponse:
+      type: object
+      required:
+        - token
+        - user
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          type: object
+          required:
+            - id
+            - name
+            - email
+            - role
+          properties:
+            id:
+              type: string
+              example: usr-8849
+            name:
+              type: string
+              example: Rachel Bolívar
+            email:
+              type: string
+              example: rachel.bolivar.morales@una.cr
+            role:
+              type: string
+              enum: [OPERATOR, ADMIN]
+              example: OPERATOR
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Credenciales incorrectas. Verifique su correo o contraseña.
