@@ -1,0 +1,219 @@
+openapi: 3.0.0
+info:
+  title: Panini Support Tickets API
+  description: Contrato de servicios de soporte para resolver incidencias logísticas del álbum Mundial 2026.
+  version: 1.0.0
+paths:
+  /api/tickets:
+    get:
+      summary: Obtener el listado de tickets
+      description: Recupera la lista de incidentes registrados en el sistema de distribución de Panini.
+      responses:
+        '200':
+          description: Lista de tickets recuperada exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketDto'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Crear un nuevo ticket de soporte
+      description: Registra una nueva incidencia relacionada con distribución, proveedores o faltantes de inventario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+      responses:
+        '201':
+          description: Ticket creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDto'
+        '400':
+          description: Solicitud con datos inválidos o incompletos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tickets/{id}:
+    get:
+      summary: Obtener detalle de un ticket específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: tkt-1029
+      responses:
+        '200':
+          description: Detalle del ticket recuperado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDto'
+        '404':
+          description: Ticket no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tickets/{id}/status:
+    patch:
+      summary: Actualizar el estado de un ticket
+      description: Modifica el estado actual de la resolución de la incidencia.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: tkt-1029
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusRequest'
+      responses:
+        '200':
+          description: Estado del ticket actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDto'
+        '400':
+          description: Estado proporcionado no es válido
+
+  /api/tickets/{id}/priority:
+    patch:
+      summary: Actualizar la prioridad de un ticket
+      description: Modifica la urgencia asignada a la resolución del ticket de soporte.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: tkt-1029
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePriorityRequest'
+      responses:
+        '200':
+          description: Prioridad del ticket actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketDto'
+
+components:
+  schemas:
+    TicketDto:
+      type: object
+      required:
+        - id
+        - title
+        - priority
+        - status
+        - provider
+        - createdAt
+        - category
+        - description
+      properties:
+        id:
+          type: string
+          example: tkt-1029
+        title:
+          type: string
+          example: Faltante de cajas de sobres en distribuidor central Costa Rica
+        priority:
+          type: string
+          enum: [HIGH, MEDIUM, LOW]
+          example: HIGH
+        status:
+          type: string
+          enum: [OPEN, IN_PROGRESS, RESOLVED]
+          example: OPEN
+        provider:
+          type: string
+          example: Impresiones Globales S.A.
+        createdAt:
+          type: string
+          format: date-time
+          example: 2026-05-30T10:15:30Z
+        category:
+          type: string
+          enum: [DISTRIBUTION, INVENTORY, LOGISTICS, ADMINISTRATIVE]
+          example: INVENTORY
+        description:
+          type: string
+          example: El punto de distribución central reporta un desfase de 15 cajas de sobres dorados en el contenedor de importación.
+    CreateTicketRequest:
+      type: object
+      required:
+        - title
+        - priority
+        - provider
+        - category
+        - description
+      properties:
+        title:
+          type: string
+          example: Retraso de entrega en almacén regional Alajuela
+        priority:
+          type: string
+          enum: [HIGH, MEDIUM, LOW]
+          example: MEDIUM
+        provider:
+          type: string
+          example: Logística Altiplano
+        category:
+          type: string
+          enum: [DISTRIBUTION, INVENTORY, LOGISTICS, ADMINISTRATIVE]
+          example: DISTRIBUTION
+        description:
+          type: string
+          example: Transportador indica retraso de 4 horas por cierre de vías nacionales.
+    UpdateStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [OPEN, IN_PROGRESS, RESOLVED]
+          example: IN_PROGRESS
+    UpdatePriorityRequest:
+      type: object
+      required:
+        - priority
+      properties:
+        priority:
+          type: string
+          enum: [HIGH, MEDIUM, LOW]
+          example: HIGH
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Recurso no encontrado.
