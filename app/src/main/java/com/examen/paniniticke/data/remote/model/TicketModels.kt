@@ -14,7 +14,7 @@ data class TicketDto(
     @SerializedName("priority") val priority: String,       // "HIGH" | "MEDIUM" | "LOW"
     @SerializedName("status") val status: String,           // "OPEN" | "IN_PROGRESS" | "RESOLVED"
     @SerializedName("provider") val provider: String,
-    @SerializedName("createdAt") val createdAt: String,    
+    @SerializedName("createdAt") val createdAt: String,
     @SerializedName("category") val category: String,       // "DISTRIBUTION" | "INVENTORY" | "LOGISTICS" | "ADMINISTRATIVE"
     @SerializedName("description") val description: String
 )
